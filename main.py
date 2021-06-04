@@ -42,7 +42,16 @@ async def on_message(message):
         start_indexd1 = def_index1 + len("<p><strong>1 :</strong> ")
         end_indexd1 = html.find(" <strong>:</strong>")
         wordDef1 = html[start_indexd1:end_indexd1]
-        await words.send("**" + wordTitle + "** " + "*(" + posp + ")* " + "-" + wordDef1)
+        # check for second definition
+        if html.find("<p><strong>2 :</strong>")  != -1:
+            def_index2 = html.find("<p><strong>2 :</strong>")
+            start_indexd2 = def_index2 + len("<p><strong>2 :</strong> ")
+            html2 = html[start_indexd2:]
+            end_indexd2 = html2.find(" <strong>:</strong>")
+            wordDef2 = html2[:end_indexd2]
+            await words.send("**" + wordTitle + "** " + "*(" + posp + ")* " + "-" + wordDef1 + "; " + wordDef2) 
+        else:
+            await words.send("**" + wordTitle + "** " + "*(" + posp + ")* " + "-" + wordDef1)
 
     # if message.content.startswith('!define'):
     #     word = message.content[6:]
