@@ -2,6 +2,8 @@ import discord
 from decouple import config
 from urllib.request import urlopen
 import time
+from bs4 import BeautifulSoup
+import requests
 
 client = discord.Client()
 
@@ -20,39 +22,70 @@ async def on_message(message):
 
     if message.content.startswith('!wotd'):
         url = "https://www.merriam-webster.com/word-of-the-day"
-        page = urlopen(url)
-        html_bytes = page.read()
-        html = html_bytes.decode("utf-8")
+        req = requests.get(url)
+        soup = BeautifulSoup(req.text, "html.parser")
+        psoup = soup.prettify()
+        ssoup = str(psoup)
 
+        title_temp = str(soup.title)
+        title_endex = title_temp.find(" | Merriam")
+        title = title_temp[24:title_endex]
+        # print(title)
 
-        title_index = html.find("<title>")
-        start_indext = title_index + len("<title>Word of the Day: ")
-        end_indext = html.find(" | Merriam-Webster</title>")
-        wordTitle = html[start_indext:end_indext]
-        # print(wordTitle)
+        temp_index = ssoup.find("1 :")
+        def_st_index = ssoup[temp_index:].find(">") + temp_index + 1
+        def_end_index = ssoup[def_st_index:].find("<") + def_st_index
+        def_one = ssoup[def_st_index:def_end_index]
+        # print(def_one.lstrip())
 
-        pos_index = html.find("\"main-attr\">")
-        start_indexpos = pos_index + len("\"main-attr\">")
-        end_indexpost = html.find("<!--<span class=\"word")
-        end_indexpos = end_indexpost - 20
-        pos = html[start_indexpos:end_indexpos]
-        posp = part_of_speech(pos)
-
-        def_index1 = html.find("<p><strong>1")
-        start_indexd1 = def_index1 + len("<p><strong>1 :</strong> ")
-        html_temp = html[start_indexd1:]
-        end_indexd1 = html_temp.find("</p>")
-        wordDef1 = html_temp[:end_indexd1]
-        # check for second definition
-        if html.find("<p><strong>2 :</strong>")  != -1:
-            def_index2 = html.find("<p><strong>2 :</strong>")
-            start_indexd2 = def_index2 + len("<p><strong>2 :</strong> ")
-            html2 = html[start_indexd2:]
-            end_indexd2 = html2.find("</p>")
-            wordDef2 = html2[:end_indexd2]
-            await words.send("**" + wordTitle + "** " + "*(" + posp + ")* " + "- " + wordDef1 + "; " + wordDef2) 
+        if (ssoup.find("2 :")) != -1:
+            two = True
+            temp_index = ssoup.find("2 :")
+            def_st_index = ssoup[temp_index:].find(">") + temp_index + 1
+            def_end_index = ssoup[def_st_index:].find("<") + def_st_index
+            def_two = ssoup[def_st_index:def_end_index]
+            # print(def_two.lstrip())
         else:
-            await words.send("**" + wordTitle + "** " + "*(" + posp + ")* " + "- " + wordDef1)
+            two = False
+
+        if (ssoup.find("3 :")) != -1:
+            three = True
+            temp_index = ssoup.find("3 :")
+            def_st_index = ssoup[temp_index:].find(">") + temp_index + 1
+            def_end_index = ssoup[def_st_index:].find("<") + def_st_index
+            def_three = ssoup[def_st_index:def_end_index]
+            # print(def_three.lstrip())
+        else:
+            three = False
+
+        if (ssoup.find("4 :")) != -1:
+            four = True
+            temp_index = ssoup.find("4 :")
+            def_st_index = ssoup[temp_index:].find(">") + temp_index + 1
+            def_end_index = ssoup[def_st_index:].find("<") + def_st_index
+            def_four = ssoup[def_st_index:def_end_index]
+            # print(def_four.lstrip())
+        else:
+            four = False
+
+        if (ssoup.find("verb")) != -1:
+            pos = "(v.)"
+        if (ssoup.find("noun")) != -1:
+            pos = "(n.)"
+        if (ssoup.find("adjective")) != -1:
+            pos = "(adj.)"
+
+        # print(pos)
+
+        wotd = "**" + title + "** *" + pos + "* - 1: " + def_one.strip() + "."
+        if two:
+            wotd += " 2: " + def_two.strip() + "."
+        if three:
+            wotd += " 3: " + def_three.strip() + "."
+        if four:
+            wotd += " 4: " + def_four.strip() + "."
+        await words.send(wotd)
+        await words.send("from Word of the Day!")
 
     # if message.content.startswith('!define'):
     #     word = message.content[6:]
