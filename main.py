@@ -5,6 +5,37 @@ import time
 from bs4 import BeautifulSoup
 import requests
 
+url = "https://www.merriam-webster.com/word-of-the-day/"
+req = requests.get(url)
+soup = BeautifulSoup(req.text, "html.parser")
+psoup = soup.prettify()
+ssoup = str(psoup)
+stsoup = ""
+snsoup = ""
+
+def falsetter():
+    global one_a
+    one_a = False
+    global one_b
+    one_b = False
+    global one_c
+    one_c = False
+
+def href_check(temp_index):
+    if ssoup[temp_index:(temp_index + 100)].find("href") != -1:
+        return True
+    else:
+        return False
+
+def final_indexer(temp_index):
+    global def_st_index
+    global def_end_index
+    if href_check(temp_index):
+        temp_index = ssoup[temp_index:(temp_index + 100)].find("href") + temp_index
+    def_st_index = ssoup[temp_index:].find(">") + temp_index + 1
+    def_end_index = ssoup[def_st_index:].find("<") + def_st_index
+    return ssoup[def_st_index:def_end_index]
+
 client = discord.Client()
 
 # Alert when ready 
@@ -21,69 +52,217 @@ async def on_message(message):
     words = client.get_channel(844741075386105906)
 
     if message.content.startswith('!wotd'):
-        url = "https://www.merriam-webster.com/word-of-the-day"
-        req = requests.get(url)
-        soup = BeautifulSoup(req.text, "html.parser")
-        psoup = soup.prettify()
-        ssoup = str(psoup)
-
+        one_a = False
         title_temp = str(soup.title)
         title_endex = title_temp.find(" | Merriam")
         title = title_temp[24:title_endex]
         # print(title)
 
-        temp_index = ssoup.find("1 :")
-        def_st_index = ssoup[temp_index:].find(">") + temp_index + 1
-        def_end_index = ssoup[def_st_index:].find("<") + def_st_index
-        def_one = ssoup[def_st_index:def_end_index]
-        # print(def_one.lstrip())
+        if (ssoup.find("1 :")) != -1 or (ssoup.find("1 a :")) != -1:
+            if (ssoup.find("1 a :")) != -1:
+                one_a = True
+                temp_index = ssoup.find("1 a :")
+                def_one = final_indexer(temp_index)
+                # print(def_one.lstrip())
+            else:
+                one_a = False
+                temp_index = ssoup.find("1 :")
+                def_one = final_indexer(temp_index)
+                # print(def_one.lstrip())
+            if one_a:
+                one_b = True
+                temp_index = ssoup[def_end_index:].find("  b") + def_end_index
+                def_one_b = final_indexer(temp_index)
+                # print(def_one.lstrip())
+            else:
+                one_b = False
+            if (ssoup[temp_index:(temp_index + 500)].find("c :")) != -1:
+                one_c = True
+                temp_index += ssoup[temp_index:(temp_index + 500)].find("c :")
+                def_one_c = final_indexer(temp_index)
+                # print(def_one.lstrip())
+            else:
+                one_c = False
+        else:
+            falsetter()
+            temp_index = ssoup.find("wotd-definition") - 200
+            if ssoup[temp_index:(temp_index + 100)].find("<a") != -1:
+                temp_index = ssoup[temp_index:].find("<a") + temp_index + 1
+                def_one = final_indexer(temp_index)
+            else:
+                temp_index = ssoup[temp_index:].find(":") + temp_index + 1
+                def_one = final_indexer(temp_index)
 
-        if (ssoup.find("2 :")) != -1:
+            # print(def_one.lstrip())
+
+        if (ssoup.find("2 :")) != -1 or (ssoup.find("2 a")) != -1:
             two = True
-            temp_index = ssoup.find("2 :")
-            def_st_index = ssoup[temp_index:].find(">") + temp_index + 1
-            def_end_index = ssoup[def_st_index:].find("<") + def_st_index
-            def_two = ssoup[def_st_index:def_end_index]
-            # print(def_two.lstrip())
+            if (ssoup.find("2 a :")) != -1:
+                two_a = True
+                temp_index = ssoup.find("2 a :")
+                def_two = final_indexer(temp_index)
+                # print(def_one.lstrip())
+            else:
+                two_a = False
+                temp_index = ssoup.find("2 :")
+                def_two = final_indexer(temp_index)
+                # print(def_one.lstrip())
+            if two_a:
+                two_b = True
+                temp_index = ssoup[def_end_index:].find("  b") + def_end_index
+                def_two_b = final_indexer(temp_index)
+                # print(def_one.lstrip())
+            else:
+                two_b = False
+            if (ssoup[temp_index:(temp_index + 500)].find("c :")) != -1:
+                two_c = True
+                temp_index += ssoup[temp_index:(temp_index + 500)].find("c :")
+                def_two_c = final_indexer(temp_index)
+                # print(def_one.lstrip())
+            else:
+                two_c = False
         else:
             two = False
 
-        if (ssoup.find("3 :")) != -1:
+        if (ssoup.find("3 :")) != -1 or (ssoup.find("3 a")) != -1:
             three = True
-            temp_index = ssoup.find("3 :")
-            def_st_index = ssoup[temp_index:].find(">") + temp_index + 1
-            def_end_index = ssoup[def_st_index:].find("<") + def_st_index
-            def_three = ssoup[def_st_index:def_end_index]
-            # print(def_three.lstrip())
+            if (ssoup[temp_index:].find("a :")) != -1:
+                three_a = True
+                temp_index = ssoup.find("3 a :")
+                def_three = final_indexer(temp_index)
+                # print(def_one.lstrip())
+            else:
+                three_a = False
+                temp_index = ssoup.find("3 :")
+                def_three = final_indexer(temp_index)
+                # print(def_one.lstrip())
+            if three_a:
+                three_b = True
+                temp_index = ssoup[def_end_index:].find("  b") + def_end_index
+                def_three_b = final_indexer(temp_index)
+                # print(def_one.lstrip())
+            else:
+                three_b = False
+            if (ssoup[temp_index:(temp_index + 500)].find("c :")) != -1:
+                three_c = True
+                temp_index += ssoup[temp_index:(temp_index + 500)].find("c :")
+                def_three_c = final_indexer(temp_index)
+                # print(def_one.lstrip())
+            else:
+                three_c = False
         else:
             three = False
 
-        if (ssoup.find("4 :")) != -1:
+        if (ssoup.find("4 :")) != -1 or (ssoup.find("4 a")) != -1:
             four = True
-            temp_index = ssoup.find("4 :")
-            def_st_index = ssoup[temp_index:].find(">") + temp_index + 1
-            def_end_index = ssoup[def_st_index:].find("<") + def_st_index
-            def_four = ssoup[def_st_index:def_end_index]
-            # print(def_four.lstrip())
+            if (ssoup.find("4 a :")) != -1:
+                four_a = True
+                temp_index = ssoup.find("4 a :")
+                def_four = final_indexer(temp_index)
+                # print(def_one.lstrip())
+            else:
+                four_a = False
+                temp_index = ssoup.find("4 :")
+                def_four = final_indexer(temp_index)
+                # print(def_one.lstrip())
+            if four_a:
+                four_b = True
+                temp_index = ssoup[def_end_index:].find("  b") + def_end_index
+                def_four_b = final_indexer(temp_index)
+                # print(def_one.lstrip())
+            else:
+                four_b = False
+            if (ssoup[temp_index:(temp_index + 500)].find("c :")) != -1:
+                four_c = True
+                temp_index += ssoup[temp_index:(temp_index + 500)].find("c :")
+                def_four_c = final_indexer(temp_index)
+                # print(def_one.lstrip())
+            else:
+                four_c = False
         else:
             four = False
 
-        if (ssoup.find("verb")) != -1:
+        if (ssoup.find("5 :")) != -1 or (ssoup.find("5 a")) != -1:
+            five = True
+            if (ssoup.find("5 a :")) != -1:
+                five_a = True
+                temp_index = ssoup.find("5 a :")
+                def_five = final_indexer(temp_index)
+                # print(def_one.lstrip())
+            else:
+                five_a = False
+                temp_index = ssoup.find("5 :")
+                def_five = final_indexer(temp_index)
+                # print(def_one.lstrip())
+            if five_a:
+                five_b = True
+                temp_index = ssoup[def_end_index:].find("  b") + def_end_index
+                def_five_b = final_indexer(temp_index)
+                # print(def_one.lstrip())
+            else:
+                five_b = False
+            if (ssoup[temp_index:(temp_index + 500)].find("c :")) != -1:
+                five_c = True
+                temp_index += ssoup[temp_index:(temp_index + 500)].find("c :")
+                def_five_c = final_indexer(temp_index)
+                # print(def_one.lstrip())
+            else:
+                five_c = False
+        else:
+            five = False
+
+        if (ssoup[:50000].find("verb")) != -1:
             pos = "(v.)"
-        if (ssoup.find("noun")) != -1:
+        if (ssoup[:50000].find("noun")) != -1:
             pos = "(n.)"
-        if (ssoup.find("adjective")) != -1:
+        if (ssoup[:50000].find("adjective")) != -1:
             pos = "(adj.)"
 
         # print(pos)
-
-        wotd = "**" + title + "** *" + pos + "* - 1: " + def_one.strip() + "."
+        if one_a:
+            wotd = "**" + title + "** *" + pos + "* - 1a: " + def_one.strip() + "."
+            if one_b:
+                wotd += " 1b: " + def_one_b.strip() + "."
+            if one_c:
+                wotd += " 1c: " + def_one_c.strip() + "."
+        else:
+            wotd = "**" + title + "** *" + pos + "* - 1: " + def_one.strip() + "."
         if two:
-            wotd += " 2: " + def_two.strip() + "."
+            if two_a:
+                wotd += " 2a: " + def_two.strip() + "."
+                if two_b:
+                    wotd += " 2b: " + def_two_b.strip() + "."
+                if two_c:
+                    wotd += " 2c: " + def_two_c.strip() + "."
+            else:
+                wotd += " 2: " + def_two.strip() + "."
         if three:
-            wotd += " 3: " + def_three.strip() + "."
+            if three_a:
+                wotd += " 3a: " + def_three.strip() + "."
+                if three_b:
+                    wotd += " 3b: " + def_three_b.strip() + "."
+                if three_c:
+                    wotd += " 3c: " + def_three_c.strip() + "."
+            else:
+                wotd += " 3: " + def_three.strip() + "."
         if four:
-            wotd += " 4: " + def_four.strip() + "."
+            if four_a:
+                wotd += " 4a: " + def_four.strip() + "."
+                if four_b:
+                    wotd += " 4b: " + def_four_b.strip() + "."
+                if four_c:
+                    wotd += " 4c: " + def_four_c.strip() + "."
+            else:
+                wotd += " 4: " + def_four.strip() + "."
+        if five:
+            if five_a:
+                wotd += " 5a: " + def_five.strip() + "."
+                if five_b:
+                    wotd += " 5b: " + def_five_b.strip() + "."
+                if five_c:
+                    wotd += " 5c: " + def_five_c.strip() + "."
+            else:
+                wotd += " 5: " + def_five.strip() + "."
         await words.send(wotd)
         await words.send("from Word of the Day!")
 
