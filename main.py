@@ -4,6 +4,7 @@ from urllib.request import urlopen
 import time
 from bs4 import BeautifulSoup
 import requests
+from PyDictionary import PyDictionary
 
 url = "https://www.merriam-webster.com/word-of-the-day/"
 req = requests.get(url)
@@ -265,6 +266,30 @@ async def on_message(message):
                 wotd += " 5: " + def_five.strip() + "."
         await words.send(wotd)
         await words.send("from Word of the Day!")
+    if message.content.startswith('!define'):
+        word = message.content[8:]
+        dictionary = PyDictionary(word)
+        word_dict = dictionary.meaning(word)
+        output = "**" + word.title() + "** - "
+        for key in word_dict:
+            if key == "Verb":
+                pos = "*(v.):*"
+            if key == "Noun":
+                pos = "*(n.):*"
+            if key == "Adjective":
+                pos = "*(adj.):*"
+            if key == "Adverb":
+                pos = "*(adv.):*"
+            output += pos
+            word_list = word_dict[key]
+            for i in word_dict[key]:
+                if i == word_list[-1]:
+                    output += " " + i + ". "
+                else:
+                    output += " " + i + " :"
+        await words.send(output)
+        await words.send("from Defined " + word.title() + ".")
+
 
     # if message.content.startswith('!define'):
     #     word = message.content[6:]
@@ -288,8 +313,8 @@ async def on_message(message):
 
     #     await words.send("**" + word.title() + "** " + "*(" + pos + ")* " + "-" + definition)
 
-    if message.content.startswith('hello'):
-        await message.channel.send('heyyyyy ;)')  
+    #if message.content.startswith('hello'):
+     #   await message.channel.send('heyyyyy ;)')  
 
 # If Kevin is typing
 @client.event
