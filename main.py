@@ -283,10 +283,14 @@ async def on_message(message):
             output += pos
             word_list = word_dict[key]
             for i in word_dict[key]:
-                if i == word_list[-1]:
-                    output += " " + i + ". "
+                if "(" in i:
+                    new_i = i + ")"
                 else:
-                    output += " " + i + " :"
+                    new_i = i
+                if i == word_list[-1]:
+                    output += " " + new_i + ". "
+                else:
+                    output += " " + new_i + " :"
         await words.send(output)
         await words.send("from Defined " + word.title() + ".")
 
