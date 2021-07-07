@@ -293,8 +293,8 @@ async def on_message(message):
                     output += " " + new_i + " :"
         await words.send(output)
         await words.send("from Defined **" + word.title() + "**.")
-    if message.content.startswith('!extras'):
-        word = message.content[8:].title()
+    if message.content.startswith('!thesaurus'):
+        word = message.content[11:].title()
         dictionary = PyDictionary()
         syns = dictionary.synonym(word)
         output_syn = "Synonyms of **" + word + "** include: "
