@@ -267,7 +267,7 @@ async def on_message(message):
         await words.send(wotd)
         await words.send("from Word of the Day!")
     if message.content.startswith('!define'):
-        word = message.content[8:]
+        word = message.content[8:].title()
         dictionary = PyDictionary(word)
         word_dict = dictionary.meaning(word)
         output = "**" + word.title() + "** - "
@@ -292,7 +292,27 @@ async def on_message(message):
                 else:
                     output += " " + new_i + " :"
         await words.send(output)
-        await words.send("from Defined " + word.title() + ".")
+        await words.send("from Defined **" + word.title() + "**.")
+    if message.content.startswith('!extras'):
+        word = message.content[8:].title()
+        dictionary = PyDictionary()
+        syns = dictionary.synonym(word)
+        output_syn = "Synonyms of **" + word + "** include: "
+        for i in syns:
+            if i == syns[-1]:
+                output_syn += i + "."
+            else:
+                output_syn += i + ", "
+
+        ants = dictionary.antonym(word)
+        output_ant = "Antonyms of **" + word + "** include: "
+        for i in ants:
+            if i == ants[-1]:
+                output_ant += i + "."
+            else:
+                output_ant += i + ", "
+        await words.send(output_syn)
+        await words.send(output_ant)
 
 
     # if message.content.startswith('!define'):
