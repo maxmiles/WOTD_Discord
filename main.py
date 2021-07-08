@@ -267,7 +267,11 @@ async def on_message(message):
         await words.send(wotd)
         await words.send("from Word of the Day!")
     if message.content.startswith('!define'):
-        word = message.content[8:].title()
+        inter = message.content
+        inter_split = inter.split()
+        word = inter_split[1].title()
+        temp_index = inter.find("from")
+        frommer = inter[temp_index:]
         dictionary = PyDictionary(word)
         word_dict = dictionary.meaning(word)
         output = "**" + word.title() + "** - "
@@ -292,7 +296,7 @@ async def on_message(message):
                 else:
                     output += " " + new_i + " :"
         await words.send(output)
-        await words.send("from Defined **" + word.title() + "**.")
+        await words.send(frommer)
     if message.content.startswith('!thesaurus'):
         word = message.content[11:].title()
         dictionary = PyDictionary()
